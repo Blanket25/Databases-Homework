@@ -1,44 +1,38 @@
 const express = require("express");
 const app = express();
-const { Pool } = require("pg");
+const {
+  getAllCustomers,
+  getCustomerById,
+  updateCustomer,
+  deleteCustomer,
+} = require("./customers");
+const {
+  getAllSuppliers,
+  getAllProducts,
+  createNewProduct,
+} = require("./products");
+const {
+  getAllOrders,
+  createNewOrder,
+  deleteOrder,
+  getOrdersWithItems,
+} = require("./orders");
+const PORT = 4000;
 
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "cyf_ecommerce",
-  password: "Blanket25",
-  port: 5432,
-});
-
-//Get all customers
-const getAllCustomers = (req, res) => {
-  pool.query("SELECT * FROM customers", (error, result) => {
-    res.json(result.rows);
-  });
-};
-
-//Get all suppliers
-const getAllSuppliers = (req, res) => {
-  pool.query("SELECT * FROM suppliers", (error, result) => {
-    res.json(result.rows);
-  });
-};
-
-//Get all products with suppliers
-const getProdAndSuppliers = (req, res) => {
-  pool.query(
-    "SELECT p.product_name, s.supplier_name FROM products p inner join suppliers s on s.id = p.supplier_id",
-    (error, result) => {
-      res.json(result.rows);
-    }
-  );
-};
+app.use(express.json());
 
 app.get("/customers", getAllCustomers);
+app.get("/customers/:customerId", getCustomerById);
 app.get("/suppliers", getAllSuppliers);
-app.get("/products", getProdAndSuppliers);
+app.get("/products", getAllProducts);
+app.get("/orders", getAllOrders);
+app.get("/customers/:customerId/orders", getOrdersWithItems);
+app.post("/products", createNewProduct);
+app.post("/customers/:customerId/orders", createNewOrder);
+app.put("/customers/:customerId", updateCustomer);
+app.delete("/orders/:orderId", deleteOrder);
+app.delete("/customers/:customerId", deleteCustomer);
 
-const PORT = 4000;
 app.listen(PORT, function () {
   console.log(`Server is listening on port ${PORT}. Ready to accept requests!`);
 });
